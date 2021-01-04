@@ -24,6 +24,7 @@ function setAttr(node, key, value) {
       break;
     case "style":
       node.style.cssText = value;
+    // ......
     default:
       node.setAttribute(key, value);
       break;
