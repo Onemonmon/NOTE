@@ -3,6 +3,7 @@ const ATTRS = "ATTRS";
 const REMOVE = "REMOVE";
 const REPLACE = "REPLACE";
 const TEXT = "TEXT";
+let INDEX = 0;
 /**
  * 1. 属性变化 => {type: 'ATTRS', attrs: {class: 'list-item-new'}}
  * 2. 新的dom节点不存在 => {type: 'REMOVE', index: xxx}
@@ -11,9 +12,8 @@ const TEXT = "TEXT";
  */
 function diff(oldTree, newTree) {
   let patches = [];
-  let index = 0;
   // 递归树 获取各个节点的补丁包
-  walk(oldTree, newTree, index, patches);
+  walk(oldTree, newTree, INDEX, patches);
   return patches;
 }
 
@@ -34,32 +34,35 @@ function diffAttr(oldProps, newProps) {
   return patch;
 }
 
-function diffChildren(oldChildren, newChildren, index, patches) {
+function diffChildren(oldChildren, newChildren, patches) {
   oldChildren.forEach((child, idx) => {
-    walk(child, newChildren[idx], ++index, patches);
+    walk(child, newChildren[idx], ++INDEX, patches);
   });
 }
 
 function walk(oldNode, newNode, index, patches) {
   // 每个节点生成自己的补丁包
   let currentPatch = [];
-  if (typeof oldNode === "string" && typeof newNode === "string") {
+  if (!newNode) {
+    currentPatch.push({ type: REMOVE, index });
+  } else if (typeof oldNode === "string" && typeof newNode === "string") {
     // 比较文本内容是否相同
     if (oldNode !== newNode) {
       currentPatch.push({ type: TEXT, newText: newNode });
     }
   } else if (oldNode.type === newNode.type) {
     // 比较类型是否相同
-    // 类型详情比较其属性的变化
+    // 类型相同 比较其属性的变化
     const attrs = diffAttr(oldNode.props, newNode.props);
     if (Object.keys(attrs).length) {
       currentPatch.push({ type: ATTRS, attrs });
     }
     // 如果有子节点
-    if (oldNode.children && newNode.children) {
-      diffChildren(oldNode.children, newNode.children, index, patches);
+    if (oldNode.children) {
+      diffChildren(oldNode.children, newNode.children, patches);
     }
   } else {
+    currentPatch.push({ type: REPLACE, newNode });
   }
   if (currentPatch.length) {
     patches[index] = currentPatch;

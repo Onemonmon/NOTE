@@ -7,9 +7,11 @@ const el1 = createElement("ul", { class: "list" }, [
   createElement("li", { class: "list-item" }, ["c"]),
 ]);
 const el2 = createElement("ul", { class: "list-new" }, [
-  createElement("li", { class: "list-item1" }, ["a"]),
-  createElement("li", { class: "list-item2" }, ["b1"]),
-  createElement("li", { class: "list-item" }, ["c1"]),
+  createElement("li", { class: "list-item" }, ["a"]),
+  createElement("li", { class: "list-item" }, ["b1"]),
+  createElement("div", { class: "list-item" }, ["c1"]),
+  createElement("li", { class: "list-item" }, ["d"]),
+  createElement("li", { class: "list-item" }, ["e"]),
 ]);
 const patches = diff(el1, el2);
 console.log(patches);
